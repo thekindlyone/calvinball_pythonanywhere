@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Calvin and Hobbes Search</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <style>
+        .list-group-item { background-color: azure; }
+        .list-group-item:nth-child(odd) { background-color: #fcf8e3; }
+        .jumbotron {background-color: transparent;}
+        body {background-color: #7bcfe2;}
+        @font-face {
+            font-family: 'calvin_and_hobbesnormal';
+            src: url('{{ url_for('static', filename='calvin-webfont.eot') }}');
+            src: url('{{ url_for('static', filename='calvin-webfont.eot') }}?#iefix') format('embedded-opentype'),
+                 url('{{ url_for('static', filename='calvin-webfont.woff') }}') format('woff'),
+                 url('{{ url_for('static', filename='calvin-webfont.ttf') }}') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        h1 { font-family: 'calvin_and_hobbesnormal';}
+    </style>
+    <script   src="https://code.jquery.com/jquery-2.2.4.min.js"   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
+    <script>
+        function search(e){
+                        query=$('#searchbox').val();
+                        console.log(query);
+                        $.getJSON( "/search",{query:query}, function( data ) {
+                            var items = [];
+                            var html="<ul class='list-group'>";
+                            $.each( data, function( c,obj ) {
+                                html+="<li class='list-group-item' id='"+c.toString()+"'>"+ "<a href = '"+obj.url+"'>"+"<span class='text-muted'>"+obj.date+"</span><br>"+obj.summary+"</a></li>";
+                            });
+                            html+="</ul>"
+                            $("#results").html(html);
+                        });
+                    }
+        $(function() {
+            $('#button').bind('click', search);
+            $('#searchbox').keypress(function (e) {
+                if(e.which ==13 )
+                    search(e);
+            });
+
+        });
+    </script>
+</head>
+
+
+<body>
+    <div class="jumbotron">
+        <h1 class="text-center">The Calvin and Hobbes Search Engine</h1>
+        <p class='text-muted text-right'>by thekindlyone</p>
+    </div>
+    <div class="container">
+
+        <div class="row">
+            <div class ="col-md-8">        
+                <input type="text" id="searchbox" class="form-control" placeholder="Enter keywords from comic strip like 'math' or 'snowflake' to search for strips containing them">
+            </div>        
+            <div class ="col-md-4">     
+                <button  class="btn btn-default" id="button">GO!</button>
+            </div>        
+        </div>
+    </div>
+    <br>
+    <div class="container">
+        <div class="row" id="results">
+        </div>
+    </div>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+</body>
+</html>

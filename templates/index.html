@@ -5,6 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Calvin and Hobbes Search</title>
+<!--     {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %} -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <style>
         .list-group-item { background-color: azure; }
@@ -20,7 +29,19 @@
             font-weight: normal;
             font-style: normal;
         }
+/*        img {
+            background: url('{{ url_for('static', filename='loading.gif') }}') no-repeat;
+        }*/
         h1 { font-family: 'calvin_and_hobbesnormal';}
+        .modal-dialog{
+            position: relative;
+            display: table; //This is important 
+            overflow-y: auto;    
+            overflow-x: auto;
+            width: auto;
+            min-width: 300px;   
+        }
+        .permalink{float:left;}
     </style>
     <script   src="https://code.jquery.com/jquery-2.2.4.min.js"   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
     <script>
@@ -30,11 +51,17 @@
                         $.getJSON( "/search",{query:query}, function( data ) {
                             var items = [];
                             var html="<ul class='list-group'>";
-                            $.each( data, function( c,obj ) {
-                                html+="<li class='list-group-item' id='"+c.toString()+"'>"+ "<a href = '"+obj.url+"'>"+"<span class='text-muted'>"+obj.date+"</span><br>"+obj.summary+"</a></li>";
-                            });
-                            html+="</ul>"
-                            $("#results").html(html);
+                            if(data.length==0){
+                                console.log("ping");
+                                $("#results").html("<p class='text-danger'>Could not find strips with given query. Try again</p>");
+                            }
+                            else{
+                                $.each( data, function( c,obj ) {
+                                    html+="<li class='list-group-item' id='"+c.toString()+"'>"+ "<a href = '"+"#"+"' data-toggle='modal' data-target='#Modal' data-link='"+obj.url+"' data-date='"+obj.date+"'><span class='text-muted'>"+obj.date+"</span><br>"+obj.summary+"</a></li>";
+                                });
+                                html+="</ul>"
+                                $("#results").html(html);
+                            }
                         });
                     }
         $(function() {
@@ -43,7 +70,24 @@
                 if(e.which ==13 )
                     search(e);
             });
-
+        $('#Modal').on('show.bs.modal', function (event) {
+          var button = $(event.relatedTarget) // Button that triggered the modal
+          var link = button.data('link') // Extract info from data-* attributes
+          var date= button.data('date')
+          // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+          // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+          var modal = $(this)
+          // modal.find('.modal-title').text('New message to ' + recipient)
+          modal.find('.modal-body').html("<img src='"+link+"'>")
+          modal.find('.modal-title').text(date)
+          modal.find('.modal-footer>span').html("<a href='"+link +"'>image link</a>")
+          // $(this).find('.modal-body').css({
+          //        width:'auto', //probably not needed
+          //        height:'auto', //probably not needed 
+          //        'max-height':'100%'
+          // });
+          console.log(modal.html())
+        });
         });
     </script>
 </head>
@@ -70,6 +114,27 @@
         <div class="row" id="results">
         </div>
     </div>
+
+    <!-- MODAL -->
+    <div class="modal fade" tabindex="-1" role="dialog" id='Modal'>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <div class="modal-body">
+            <!-- CONTENT -->
+            <img src="{{ url_for('static', filename='loading.gif') }}">
+          </div>
+          <div class="modal-footer">
+            <span class='permalink'></span>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 </body>
 </html>

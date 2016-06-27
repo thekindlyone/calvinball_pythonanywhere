@@ -64,3 +64,4 @@ transcript.p
 data.json
 *.tar.gz
 *.csv
+index/
